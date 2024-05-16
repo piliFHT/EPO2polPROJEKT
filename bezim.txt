@@ -1,0 +1,25 @@
+ORG 0H
+MOV DPTR, #300H ; DPTR ukazuje na začátek textu
+MOV R7, #0FH ; Počet znaků k rotaci
+
+ROTATE:
+MOV A, R7 ; Zkopírujte počet znaků do akumulátoru
+CJNE A, #00, CONTINUE ; Pokud je akumulátor roven nule, skončíme
+SJMP END
+
+CONTINUE:
+MOVX A, @DPTR ; Načtěte znak z paměti do akumulátoru
+MOV R0, A ; Uložte znak do R0
+INC DPTR ; Posuňte ukazatel na další znak
+MOVX A, @DPTR ; Načtěte další znak z paměti do akumulátoru
+MOV R1, A ; Uložte další znak do R1
+MOV A, R0 ; Vložte původní znak zpět do akumulátoru
+MOVX @DPTR, A ; Uložte původní znak na novou pozici v paměti
+DEC DPTR ; Posuňte ukazatel zpět na původní pozici
+MOV A, R1 ; Vložte další znak zpět do akumulátoru
+MOVX @DPTR, A ; Uložte další znak na původní pozici v paměti
+DJNZ R7, ROTATE ; Snížte počet znaků a pokud ještě nejsme hotovi, pokračujte v rotaci
+
+END:
+NOP ; Nic nedělejte, jsme hotovi
+END

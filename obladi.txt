@@ -1,0 +1,69 @@
+ORG 0000H          ; Origin, start of program memory
+
+MOV DPTR, #st1     ; Initialize DPTR to point to the string
+MOV R0, #0         ; Initialize R0 (used for indexing)
+
+; Main Loop
+MAIN_LOOP:
+    MOV A, R0
+    ACALL GOTO_XY  ; Go to X,Y coordinate
+    ACALL PRINT    ; Print the string
+    
+    ACALL DELAY    ; Delay to simulate screen clearing (no direct screen access)
+
+    INC R0
+    MOV A, R0
+    CJNE A, #23, MAIN_LOOP
+
+    ; Backward Loop
+BACKWARD_LOOP:
+    MOV A, R0
+    ACALL GOTO_XY  ; Go to X,Y coordinate
+    ACALL PRINT    ; Print the string
+    
+    ACALL DELAY    ; Delay to simulate screen clearing (no direct screen access)
+
+    DEC R0
+    MOV A, R0
+    CJNE A, #1, BACKWARD_LOOP
+
+    SJMP MAIN_LOOP ; Loop forever
+
+; Subroutine to simulate GOTO_XY (Pseudocode, modify according to your actual I/O)
+GOTO_XY:
+    ; Set cursor to position X=R0, Y=R0 (or perform equivalent action)
+    ; Pseudocode since actual implementation depends on your I/O mechanism
+    RET
+
+; Subroutine to print string
+PRINT:
+    MOV DPTR, #st1  ; Point DPTR to the string
+PRINT_LOOP:
+    CLR A           ; Clear the accumulator
+    MOVC A, @A+DPTR ; Move the character from code memory to accumulator
+    JZ PRINT_END    ; If null terminator, end print
+    INC DPTR        ; Increment DPTR to the next character
+
+    ; Output the character (modify according to your actual I/O mechanism)
+    MOV P1, A       ; For example, move to Port 1 (assuming it's connected to an output device)
+    ACALL DELAY     ; Small delay for the output
+
+    SJMP PRINT_LOOP ; Loop to print next character
+
+PRINT_END:
+    RET
+
+; Subroutine for delay
+DELAY:
+    MOV R2, #250    ; Outer delay loop
+DELAY_OUTER:
+    MOV R3, #250    ; Inner delay loop
+DELAY_INNER:
+    DJNZ R3, DELAY_INNER
+    DJNZ R2, DELAY_OUTER
+    RET
+
+; String data
+st1: DB 'O',0       ; String to print with null terminator
+
+END
